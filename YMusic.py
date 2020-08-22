@@ -22,7 +22,8 @@ class YoutubeMusic(threading.Thread):
         self.options.add_argument('--headless');
         self.options.add_argument('--disable-extensions')
         self.options.add_argument('--log-level=3')
-        self.Browser = Chrome(r'B:\chromsedriver.exe',options=self.options);
+        self.chromedriverPath = r"B:/chromedriver.exe"; # change this with your actual chromedriver path.
+        self.Browser = Chrome(self.chromedriverPath,options=self.options); 
         #our browser is read to shoot.
     def HelpMenu(self):
         ProgramBanner="""
