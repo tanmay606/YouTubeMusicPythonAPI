@@ -1,4 +1,5 @@
 import threading
+from sys import exit
 from time import sleep
 from selenium import common
 from selenium.webdriver import Chrome;
@@ -21,7 +22,7 @@ class YoutubeMusic(threading.Thread):
         self.options.add_argument('--headless');
         self.options.add_argument('--disable-extensions')
         self.options.add_argument('--log-level=3')
-        self.Browser = Chrome(r'c:\windows\chromedriver.exe',options=self.options);
+        self.Browser = Chrome(r'B:\chromsedriver.exe',options=self.options);
         #our browser is read to shoot.
     def HelpMenu(self):
         ProgramBanner="""
@@ -121,7 +122,17 @@ class YoutubeMusic(threading.Thread):
         print(threading.enumerate())
 
 
-x=YoutubeMusic()
+try:
+    x=YoutubeMusic()
+except common.exceptions.WebDriverException:
+    #! if you have some problmes with web driver.
+    print("Error while using Chrome Driver (Possible Causes ) : ");
+    print("1. Using Old Chrome Driver, Please Get Latest Version.")
+    print("2. Incorrect Path of Chrome Driver Provided, Please Correct It.")
+    input();
+    exit();
+
+
 while True:
     if(x.FirstTime):
         x.HelpMenu()
@@ -173,6 +184,13 @@ while True:
                 x.NavigateYoutube(contentName)
             else:
                 x.PlayVideo(contentchoice)
+
+        except selenium.common.exceptions.WebDriverException:
+            #! if you have some problmes with web driver.
+            print("Error while using Chrome Driver (Possible Causes ) : ");
+            print("1. Using Old Chrome Driver, Please Get Latest Version.")
+            print("2. Incorrect Path of Chrome Driver Provided, Please Correct It.")
+            input();
         except common.exceptions.ElementClickInterceptedException:
             print("Unknown Error: Please Try Again.")
         except ValueError:
