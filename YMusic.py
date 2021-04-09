@@ -1,4 +1,5 @@
 import threading
+import selenium
 from sys import exit
 from time import sleep
 from selenium import common
@@ -19,10 +20,10 @@ class YoutubeMusic(threading.Thread):
         self.options = Options();
         self.CompletelyLoaded = True;
         self.options.add_argument(self.user_agent);
-        self.options.add_argument('--headless');
+        #self.options.add_argument('--headless');
         self.options.add_argument('--disable-extensions')
         self.options.add_argument('--log-level=3')
-        self.chromedriverPath = r"B:/chromedriver.exe"; # change this with your actual chromedriver path.
+        self.chromedriverPath = r"chromedriver.exe"; # change this with your actual chromedriver path.
         self.Browser = Chrome(self.chromedriverPath,options=self.options); 
         #our browser is read to shoot.
     def HelpMenu(self):
@@ -68,7 +69,7 @@ class YoutubeMusic(threading.Thread):
         self.Counter = 1;
         self.Videos = [];
         for eachVid in range(1,4):
-            self.xpath = "/html/body/ytm-app/div[3]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4/span"%eachVid;
+            self.xpath = '//*[@id="app"]/div[1]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4'%eachVid;
             self.EachVideo = WebDriverWait(self.Browser,5).until(EC.presence_of_element_located((By.XPATH,self.xpath)))
             self.EachVideo=self.EachVideo.text;
             #self.EachVideo = self.Browser.find_element_by_xpath('/html/body/ytm-app/div[3]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4/span'%eachVid).text;
@@ -84,7 +85,7 @@ class YoutubeMusic(threading.Thread):
     def PlayVideo(self,VideoID):
         #Finally Plays Video.
         #!VIDEO PLAY CODE HERE
-        self.VideoPlay = '//*[@id="app"]/div[3]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4/span'%VideoID;
+        self.VideoPlay = '//*[@id="app"]/div[1]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4'%VideoID;
         self.Video = WebDriverWait(self.Browser,5).until(EC.presence_of_element_located((By.XPATH,self.VideoPlay)));
         sleep(2)
         self.Video.click()
@@ -185,13 +186,6 @@ while True:
                 x.NavigateYoutube(contentName)
             else:
                 x.PlayVideo(contentchoice)
-
-        except selenium.common.exceptions.WebDriverException:
-            #! if you have some problmes with web driver.
-            print("Error while using Chrome Driver (Possible Causes ) : ");
-            print("1. Using Old Chrome Driver, Please Get Latest Version.")
-            print("2. Incorrect Path of Chrome Driver Provided, Please Correct It.")
-            input();
         except common.exceptions.ElementClickInterceptedException:
             print("Unknown Error: Please Try Again.")
         except ValueError:
