@@ -14,13 +14,14 @@ class YoutubeMusic(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self);
         self.FirstTime = True;
+        self.existingProj = False;
         self.IncreaseTime = 30;
         self.DecreaseTime = 30;
         self.user_agent = '--user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1'
         self.options = Options();
         self.CompletelyLoaded = True;
         self.options.add_argument(self.user_agent);
-        #self.options.add_argument('--headless');
+        self.options.add_argument('--headless');
         self.options.add_argument('--disable-extensions')
         self.options.add_argument('--log-level=3')
         self.chromedriverPath = r"chromedriver.exe"; # change this with your actual chromedriver path.
@@ -37,24 +38,6 @@ class YoutubeMusic(threading.Thread):
         Email : kevinthemetnik@gmail.com
         Instagram : _tanmay_upadhyay_
 
-
-        [IN MAIN MENU ]
-        1.) Simply Put Song Name
-
-        Special Commands : 
-
-        2.) =forward  : Move Current Video Backward ,For Specific Time (=forward:time in sec EG: =forward:35)
-        3.) =backward : Move Current Video Backward, For Specific Time (=forward:time in sec EG: =backward:35)
-        4.) =restart : It Will Restart The Current Video.
-        5.) =pause : It Will Pause The Current Video.
-        6.) =play : It Will Play The Pause Video.
-        7.) =refresh : It Will Refresh The Page.
-        8.) =quit : Closes The Program.
-        9.) =? / =HELP / =help : Help.
-
-        [IN SONG SELECTION MENU ]
-
-        9 : Back To Main Menu.
         """
         self.FirstTime = False
         print(ProgramBanner);
@@ -66,9 +49,10 @@ class YoutubeMusic(threading.Thread):
         self.Browser.get("https://m.youtube.com/results?search_query=%s"%self.MusicName);
         self.Browser.implicitly_wait(5);
     def ListVideos(self):
+        self.existingProj = True;
         self.Counter = 1;
         self.Videos = [];
-        for eachVid in range(1,4):
+        for eachVid in range(1,7):
             self.xpath = '//*[@id="app"]/div[1]/ytm-search/ytm-section-list-renderer/lazy-list/ytm-item-section-renderer/lazy-list/ytm-compact-video-renderer[%d]/div/div/a/h4'%eachVid;
             self.EachVideo = WebDriverWait(self.Browser,5).until(EC.presence_of_element_located((By.XPATH,self.xpath)))
             self.EachVideo=self.EachVideo.text;
@@ -124,70 +108,102 @@ class YoutubeMusic(threading.Thread):
         print(threading.enumerate())
 
 
-try:
-    x=YoutubeMusic()
-except common.exceptions.WebDriverException:
-    #! if you have some problmes with web driver.
-    print("Error while using Chrome Driver (Possible Causes ) : ");
-    print("1. Using Old Chrome Driver, Please Get Latest Version.")
-    print("2. Incorrect Path of Chrome Driver Provided, Please Correct It.")
-    input();
-    exit();
-
-
+x = YoutubeMusic();
 while True:
-    if(x.FirstTime):
-        x.HelpMenu()
-    contentName = input("\n [Music Name / CMD ] ")
-    if(len(contentName) == 0):
-        continue
-    elif(contentName == "=quit" or contentName == "=QUIT"):
-        x.Close()
-    elif(contentName == "=help" or contentName == "=HELP" or contentName == "=?"):
-        x.HelpMenu()
-    elif(contentName == "=refresh" or contentName == "=REFRESH"):
-        x.RefreshPage()
-    elif(contentName == "=Restart" or contentName == "=restart" or contentName == "=RESTART"):
-        x.RestartVideo()
-    elif(contentName == "=play" or contentName == "=PLAY"):
-        x.Play()
-    elif(contentName == "=pause" or contentName == "=PAUSE"):
-        x.Pause()
-    elif("=forward" in contentName or "=FORWARD" in contentName):
-        if(":" not in contentName):
-            x.MoveForward()
-        else:
-            Ftime = contentName.split(":")[1]
-            if(len(Ftime) == 0):
-                x.MoveForward()
-            else:
-                x.IncreaseTime = Ftime
-                x.MoveForward()
-    elif("=backward" in contentName or "=backward" in contentName):
-            if(":" not in contentName):
-                x.MoveBackwards()
-            else:
-                Ftime = contentName.split(":")[1]
-                if(len(Ftime) == 0):
-                    x.MoveBackwards()
-                else:
-                    x.DecreaseTime = Ftime
-                    x.MoveBackwards()
-    else:
-        try:
-            x.NavigateYoutube(contentName)
-            x.ListVideos()
-            contentchoice = int(input("=> "))
-            if(contentchoice == 0):
-                #!If no input is provided regarding music it will take 1st music out of list.
-                x.PlayVideo(1)
-            elif(contentchoice == 9):
-                #!It will load previous page.
-                x.NavigateYoutube(contentName)
-            else:
-                x.PlayVideo(contentchoice)
-        except common.exceptions.ElementClickInterceptedException:
-            print("Unknown Error: Please Try Again.")
-        except ValueError:
-            x.NavigateYoutube(contentName)
-            x.ListVideos()
+
+	if x.FirstTime:
+		x.HelpMenu();
+	else:
+		try:
+			if x.existingProj == True:
+				# if project is already running.
+				contentchoice = int(input("[ Song Number / 98 For CMD / Press 99 For Backward ] : "))
+				if contentchoice == 0:
+					x.PlayVideo(1)
+
+				if contentchoice == 98:
+
+					print("""
+
+					quit : to quit the program
+
+					refresh : to refresh the song.
+
+					play : To play paused song again.
+
+					pause : To pause the song.
+
+					forward(time) : To skip a song forward to 'n' minutes.
+
+					backward(time) : To skip a song backward to 'n' minutes.
+
+						""")
+	
+					cmd = input("[CMD] ");
+
+					if cmd == "quit" or cmd == "QUIT":
+						x.Close()
+					elif cmd == "help" or cmd == "HELP" or cmd == "=?":
+						x.HelpMenu()
+					elif cmd == "refresh" or cmd == "REFRESH":
+						x.RestartVideo()
+					elif cmd == "play" or cmd == "PLAY":
+						x.Play();
+					elif cmd == "pause" or cmd == "PAUSE":
+						x.Pause();
+					elif "forward" in cmd or "FORWARD" in cmd:
+						if ":" not in cmd:
+							x.MoveForward();
+
+						else:
+
+							Ftime = cmd.split(":")[1];
+							if(len(Ftime) == 0):
+								x.MoveForward()
+							else:
+								x.IncreaseTime = Ftime;
+								x.MoveForward()
+
+					elif "backward" in cmd or "Backward" in cmd:
+						if ":" not in cmd:
+							x.MoveBackwards();
+
+						else:
+
+							x.DecreaseTime = Ftime;
+							x.MoveBackwards()
+
+
+				elif contentchoice == 99:
+					x.existingProj = False;
+					continue
+
+				else:
+					x.NavigateYoutube(contentName)
+					x.PlayVideo(contentchoice);
+			else:
+				#no project prior running.
+				contentName = input("\n [ Search Music By Name ] : ");
+
+				if contentName:
+					try:
+						x.NavigateYoutube(contentName)
+						x.ListVideos()
+
+					except:
+						pass
+
+		except ValueError:
+			pass
+ 
+
+		except common.exceptions.ElementClickInterceptedException:
+			print("Unknown Error - Please Try Again.")
+			continue
+
+		except common.exceptions.WebDriverException:
+			print("Error while using Chrome Driver (Possible Causes ) : ");
+			print("1. Using Old Chrome Driver, Please Get Latest Version.")
+			print("2. Incorrect Path of Chrome Driver Provided, Please Correct It.")
+			input();
+			exit();
