@@ -1,5 +1,6 @@
 import threading
 import selenium
+import os
 from sys import exit
 from time import sleep
 from selenium import common
@@ -24,6 +25,22 @@ class YoutubeMusic(threading.Thread):
         self.options.add_argument('--headless');
         self.options.add_argument('--disable-extensions')
         self.options.add_argument('--log-level=3')
+	"""
+	In case you're using linux.
+	
+		Replace:
+		========
+		
+		self.chromedriverPath = r"chromedriver.exe"; # change this with your actual chromedriver path.
+		
+		With: 
+		=====
+	        
+		os.chdir(os.getcwd());
+        	self.chromedriverPath = r"./chromedriver"; # change this with your actual chromedriver path.
+		
+		[ Make sure you have chromedriver for linux in the same directory. ]
+	"""
         self.chromedriverPath = r"chromedriver.exe"; # change this with your actual chromedriver path.
         self.Browser = Chrome(self.chromedriverPath,options=self.options); 
         #our browser is read to shoot.
